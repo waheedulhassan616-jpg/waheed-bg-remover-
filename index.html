@@ -1,141 +1,136 @@
-
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Waheed BG Remover</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f0f4f8;
-  text-align: center;
-  padding: 20px;
-  margin: 0;
-  color: #172033;
+body{
+font-family:Arial,sans-serif;
+background:#f4f4f4;
+text-align:center;
+padding:20px;
 }
-.container {
-  background: white;
-  max-width: 550px;
-  margin: 20px auto;
-  padding: 25px;
-  border-radius: 18px;
-  box-shadow: 0 4px 15px #0002;
+
+.container{
+max-width:500px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
-h1 { color: #1769e0; }
-p { line-height: 1.8; }
-input { max-width: 100%; margin: 15px 0; }
-button {
-  background: #1769e0;
-  color: white;
-  border: none;
-  padding: 13px 18px;
-  margin: 6px;
-  border-radius: 9px;
-  font-size: 16px;
+
+h1{
+color:#007bff;
 }
-button:disabled { opacity: .5; }
-img {
-  max-width: 100%;
-  max-height: 350px;
-  margin-top: 15px;
+
+input{
+margin:15px 0;
 }
-#status { font-weight: bold; }
+
+img{
+max-width:100%;
+margin-top:15px;
+border-radius:10px;
+}
+
+button{
+padding:12px 20px;
+border:none;
+border-radius:5px;
+margin:10px;
+cursor:pointer;
+font-size:16px;
+}
+
+.upload{
+background:#007bff;
+color:white;
+}
+
+.remove{
+background:#28a745;
+color:white;
+}
+
+.download{
+background:#dc3545;
+color:white;
+}
 </style>
 </head>
 
 <body>
+
 <div class="container">
-  <h1>Waheed BG Remover</h1>
-  <p>اپنی تصویر منتخب کریں اور اس کا بیک گراؤنڈ ہٹائیں۔</p>
 
-  <input id="photo" type="file"
-         accept="image/png,image/jpeg,image/webp">
+<h1>Waheed BG Remover</h1>
 
-  <br>
+<input type="file" id="imageInput" accept="image/*">
 
-  <button id="remove" disabled>
-    بیک گراؤنڈ ہٹائیں
-  </button>
+<br>
 
-  <button id="download" disabled>
-    تصویر ڈاؤن لوڈ کریں
-  </button>
+<img id="preview" src="" style="display:none;">
 
-  <p id="status">پہلے تصویر منتخب کریں۔</p>
-  <img id="result" hidden alt="نتیجہ">
+<br>
+
+<button class="remove" onclick="removeBackground()">
+Remove Background
+</button>
+
+<button class="download" onclick="downloadImage()">
+Download Image
+</button>
+
 </div>
 
-<script type="module">
-const photo = document.getElementById("photo");
-const removeBtn = document.getElementById("remove");
-const downloadBtn = document.getElementById("download");
-const status = document.getElementById("status");
-const result = document.getElementById("result");
+<script>
+let uploadedImage = "";
 
-let imageUrl = null;
-let selectedFile = null;
+document.getElementById("imageInput").addEventListener("change",function(e){
 
-photo.addEventListener("change", () => {
-  selectedFile = photo.files[0];
-  removeBtn.disabled = !selectedFile;
-  downloadBtn.disabled = true;
-  result.hidden = true;
+const file = e.target.files[0];
 
-  if (imageUrl) {
-    URL.revokeObjectURL(imageUrl);
-    imageUrl = null;
-  }
+if(file){
 
-  status.textContent = selectedFile
-    ? "تصویر منتخب ہوگئی۔"
-    : "پہلے تصویر منتخب کریں۔";
+const reader = new FileReader();
+
+reader.onload=function(event){
+
+uploadedImage = event.target.result;
+
+const img=document.getElementById("preview");
+
+img.src=uploadedImage;
+
+img.style.display="block";
+}
+
+reader.readAsDataURL(file);
+}
+
 });
 
-removeBtn.addEventListener("click", async () => {
-  if (!selectedFile) return;
+function removeBackground(){
 
-  removeBtn.disabled = true;
-  status.textContent = "AI لوڈ ہو رہا ہے، انتظار کریں...";
+alert("AI Background Removal کے لیے Remove.bg API یا AI ماڈل شامل کرنا ہوگا۔");
 
-  try {
-    const { removeBackground } = await import(
-      "https://esm.sh/@imgly/background-removal"
-    );
+}
 
-    status.textContent = "بیک گراؤنڈ ہٹایا جا رہا ہے...";
+function downloadImage(){
 
-    const blob = await removeBackground(selectedFile);
+const link=document.createElement("a");
 
-    if (imageUrl) URL.revokeObjectURL(imageUrl);
-    imageUrl = URL.createObjectURL(blob);
+link.href=document.getElementById("preview").src;
 
-    result.src = imageUrl;
-    result.hidden = false;
-    downloadBtn.disabled = false;
+link.download="waheed-bg-remover.png";
 
-    status.textContent =
-      "مکمل ہوگیا! اب تصویر ڈاؤن لوڈ کریں۔";
+link.click();
 
-  } catch (error) {
-    console.error(error);
-    status.textContent =
-      "خرابی آگئی۔ انٹرنیٹ چیک کرکے دوبارہ کوشش کریں۔";
-  } finally {
-    removeBtn.disabled = !selectedFile;
-  }
-});
-
-downloadBtn.addEventListener("click", () => {
-  if (!imageUrl) return;
-
-  const link = document.createElement("a");
-  link.href = imageUrl;
-  link.download = "waheed-bg-removed.png";
-  link.click();
-});
+}
 </script>
+
 </body>
 </html>
-
