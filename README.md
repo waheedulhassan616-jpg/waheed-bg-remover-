@@ -1,4 +1,4 @@
-# Waheed BG Remover 🚀
+# BG Remover 🚀
 
 An AI-powered web tool designed to remove image backgrounds instantly and for free.
 
