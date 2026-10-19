@@ -59,7 +59,142 @@ color:white;
 background:#dc3545;
 color:white;
 }
+</style><!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waheed BG Remover</title>
+
+<style>
+body{
+font-family:Arial,sans-serif;
+background:#f4f4f4;
+text-align:center;
+padding:20px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+h1{
+color:#007bff;
+}
+
+input{
+margin:15px 0;
+}
+
+img{
+max-width:100%;
+margin-top:15px;
+border-radius:10px;
+}
+
+button{
+padding:12px 20px;
+border:none;
+border-radius:5px;
+margin:10px;
+cursor:pointer;
+font-size:16px;
+}
+
+.upload{
+background:#007bff;
+color:white;
+}
+
+.remove{
+background:#28a745;
+color:white;
+}
+
+.download{
+background:#dc3545;
+color:white;
+}
 </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Waheed BG Remover</h1>
+
+<input type="file" id="imageInput" accept="image/*">
+
+<br>
+
+<img id="preview" src="" style="display:none;">
+
+<br>
+
+<button class="remove" onclick="removeBackground()">
+Remove Background
+</button>
+
+<button class="download" onclick="downloadImage()">
+Download Image
+</button>
+
+</div>
+
+<script>
+let uploadedImage = "";
+
+document.getElementById("imageInput").addEventListener("change",function(e){
+
+const file = e.target.files[0];
+
+if(file){
+
+const reader = new FileReader();
+
+reader.onload=function(event){
+
+uploadedImage = event.target.result;
+
+const img=document.getElementById("preview");
+
+img.src=uploadedImage;
+
+img.style.display="block";
+}
+
+reader.readAsDataURL(file);
+}
+
+});
+
+function removeBackground(){
+
+alert("AI Background Removal کے لیے Remove.bg API یا AI ماڈل شامل کرنا ہوگا۔");
+
+}
+
+function downloadImage(){
+
+const link=document.createElement("a");
+
+link.href=document.getElementById("preview").src;
+
+link.download="waheed-bg-remover.png";
+
+link.click();
+
+}
+</script>
+
+</body>
+</html>
 </head>
 
 <body>
