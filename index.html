@@ -1,1 +1,141 @@
 
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waheed BG Remover</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f4f8;
+  text-align: center;
+  padding: 20px;
+  margin: 0;
+  color: #172033;
+}
+.container {
+  background: white;
+  max-width: 550px;
+  margin: 20px auto;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 4px 15px #0002;
+}
+h1 { color: #1769e0; }
+p { line-height: 1.8; }
+input { max-width: 100%; margin: 15px 0; }
+button {
+  background: #1769e0;
+  color: white;
+  border: none;
+  padding: 13px 18px;
+  margin: 6px;
+  border-radius: 9px;
+  font-size: 16px;
+}
+button:disabled { opacity: .5; }
+img {
+  max-width: 100%;
+  max-height: 350px;
+  margin-top: 15px;
+}
+#status { font-weight: bold; }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1>Waheed BG Remover</h1>
+  <p>اپنی تصویر منتخب کریں اور اس کا بیک گراؤنڈ ہٹائیں۔</p>
+
+  <input id="photo" type="file"
+         accept="image/png,image/jpeg,image/webp">
+
+  <br>
+
+  <button id="remove" disabled>
+    بیک گراؤنڈ ہٹائیں
+  </button>
+
+  <button id="download" disabled>
+    تصویر ڈاؤن لوڈ کریں
+  </button>
+
+  <p id="status">پہلے تصویر منتخب کریں۔</p>
+  <img id="result" hidden alt="نتیجہ">
+</div>
+
+<script type="module">
+const photo = document.getElementById("photo");
+const removeBtn = document.getElementById("remove");
+const downloadBtn = document.getElementById("download");
+const status = document.getElementById("status");
+const result = document.getElementById("result");
+
+let imageUrl = null;
+let selectedFile = null;
+
+photo.addEventListener("change", () => {
+  selectedFile = photo.files[0];
+  removeBtn.disabled = !selectedFile;
+  downloadBtn.disabled = true;
+  result.hidden = true;
+
+  if (imageUrl) {
+    URL.revokeObjectURL(imageUrl);
+    imageUrl = null;
+  }
+
+  status.textContent = selectedFile
+    ? "تصویر منتخب ہوگئی۔"
+    : "پہلے تصویر منتخب کریں۔";
+});
+
+removeBtn.addEventListener("click", async () => {
+  if (!selectedFile) return;
+
+  removeBtn.disabled = true;
+  status.textContent = "AI لوڈ ہو رہا ہے، انتظار کریں...";
+
+  try {
+    const { removeBackground } = await import(
+      "https://esm.sh/@imgly/background-removal"
+    );
+
+    status.textContent = "بیک گراؤنڈ ہٹایا جا رہا ہے...";
+
+    const blob = await removeBackground(selectedFile);
+
+    if (imageUrl) URL.revokeObjectURL(imageUrl);
+    imageUrl = URL.createObjectURL(blob);
+
+    result.src = imageUrl;
+    result.hidden = false;
+    downloadBtn.disabled = false;
+
+    status.textContent =
+      "مکمل ہوگیا! اب تصویر ڈاؤن لوڈ کریں۔";
+
+  } catch (error) {
+    console.error(error);
+    status.textContent =
+      "خرابی آگئی۔ انٹرنیٹ چیک کرکے دوبارہ کوشش کریں۔";
+  } finally {
+    removeBtn.disabled = !selectedFile;
+  }
+});
+
+downloadBtn.addEventListener("click", () => {
+  if (!imageUrl) return;
+
+  const link = document.createElement("a");
+  link.href = imageUrl;
+  link.download = "waheed-bg-removed.png";
+  link.click();
+});
+</script>
+</body>
+</html>
+
